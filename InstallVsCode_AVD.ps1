@@ -22,7 +22,15 @@ write-host "Downloading $installerFile..."
 Invoke-Webrequest $downloadUrl -UseBasicParsing -OutFile $installerPath
 
 write-host "Installing $installerPath..."
-Start-Process $installerPath -ArgumentList $installerArguments -Wait
+Start-Process $installerPath -ArgumentList $installerArguments
+
+Do {
+    $id = $(Get-Process | Select MainWindowTitle,ProcessName,Id | where{$_.MainWindowTitle -like "Get Started - Visual Studio Code*"}).id
+    write-host "Waiting for VS Code installation to complete..."
+    start-sleep 5
+} While ($id -eq $null)
+
+Stop-Process $id 
 
 write-host "Cleanup the downloaded file."
 Remove-Item $installerPath -Force
